@@ -18,6 +18,7 @@ fileReplace('dist/cjs/Constants.js', '__STANZAJS_VERSION__', Pkg.version);
 fileReplace('dist/es/Constants.js', '__STANZAJS_VERSION__', Pkg.version);
 
 Child('mkdir dist/npm');
+Child('mkdir dist/@ltsdev');
 Child('cp -r dist/cjs/* dist/npm/');
 Child('cp dist/es/index.js dist/npm/index.module.js');
 Child(`cp ${__dirname}/../*.md dist/npm`);

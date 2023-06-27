@@ -21,6 +21,7 @@ declare module '../' {
 
         markActive(): void;
         markInactive(): void;
+        checkConnection(): void;
 
         enableKeepAlive(opts?: KeepAliveOptions): void;
         disableKeepAlive(): void;
@@ -131,6 +132,29 @@ export default function (client: Agent): void {
 
         clearInterval(client._keepAliveInterval);
         client._keepAliveInterval = setInterval(keepalive, interval * 1000);
+    };
+
+    client.checkConnection = async () => {
+        // Disconnect if no response in 15 seconds
+        const timeout = client.config.timeout || 15;
+
+        if (client.sessionStarted) {
+            try {
+                await timeoutPromise<void>(checkConnection(client), timeout * 1000);
+            } catch (err) {
+                // Kill the apparently dead connection without closing
+                // the stream itself so we can reconnect and potentially
+                // resume the session.
+                client.emit('stream:error', {
+                    condition: 'connection-timeout',
+                    text: 'Server did not respond in ' + timeout + ' seconds'
+                });
+                if (client.transport) {
+                    client.transport.hasStream = false;
+                    client.transport.disconnect(false);
+                }
+            }
+        }
     };
 
     client._stopKeepAliveInterval = () => {

@@ -112,10 +112,11 @@ export default class WSConnection extends Duplex implements Transport {
             }
         };
         this.socket.onclose = () => {
+            console.log("socket.onclose");
             this.push(null);
         };
         this.socket.onerror = err => {
-            console.error(err);
+            console.error("socket.onerror", err);
             this.push(null);
         };
     }
